@@ -1,5 +1,5 @@
 # Họ và tên: NGUYEN HUYNH PHUOC DANH - MSSV: 23646871
-- URL clone HTTPS: https://github.com/phuocdanh2005/23646871_TH2.git
+- URL clone HTTPS: https://github.com/nguyenhuynhphuocdanh2005-max/23646871_TH2.git
 - Stamp: 278798
 - Số cuối: 1
 - VARIANT: watermarkAtTop: false | authField: phone | tabOrder: shopFirst | hapticOnAdd: selection | shipFormula: B | detailPresentation: card
