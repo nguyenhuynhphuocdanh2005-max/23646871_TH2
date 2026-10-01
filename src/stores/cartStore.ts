@@ -13,6 +13,8 @@ export interface CartItem {
 
 interface CartState {
   items: CartItem[];
+  shipFee: number;
+  setShipFee: (fee: number) => void;
   add: (item: CartItem, hapticFn?: () => void) => void;
   remove: (id: string) => void;
   changeQty: (id: string, delta: number) => void;
@@ -24,6 +26,8 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      shipFee: 0,
+      setShipFee: (fee) => set({ shipFee: fee }),
       add: (item, hapticFn) => {
         set((state) => {
           const existing = state.items.find((i) => i.id === item.id);

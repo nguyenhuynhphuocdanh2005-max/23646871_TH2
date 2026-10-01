@@ -6,7 +6,7 @@ import { COLORS } from '@constants/theme';
 import { ROOM_LABEL } from '@constants/student';
 
 export default function CartScreen() {
-  const { items, remove, changeQty, totalAmount } = useCartStore();
+  const { items, remove, changeQty, totalAmount, shipFee } = useCartStore();
 
   return (
     <View style={styles.container}>
@@ -48,11 +48,12 @@ export default function CartScreen() {
       <View style={styles.footerCard}>
         <Text style={styles.roomText}>Giao đến {ROOM_LABEL}</Text>
 
-        {/* Phí ship sẽ được móc nối ở Giai đoạn 6 sau khi cấp quyền Location */}
-        <Text style={styles.shipText}>Phí ship: (Đang chờ cấp quyền vị trí...)</Text>
+        <Text style={styles.shipText}>
+          {shipFee > 0 ? `Phí ship: ${formatCurrency(shipFee)} (công thức B)` : 'Phí ship: (Đang chờ tính...)'}
+        </Text>
 
         <View style={styles.divider} />
-        <Text style={styles.totalText}>Tổng hàng: {formatCurrency(totalAmount())}</Text>
+        <Text style={styles.totalText}>Tổng hàng: {formatCurrency(totalAmount() + shipFee)}</Text>
       </View>
     </View>
   );
