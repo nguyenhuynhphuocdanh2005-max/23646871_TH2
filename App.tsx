@@ -1,17 +1,30 @@
+// TH2 | 23646871 | NGUYEN HUYNH PHUOC DANH | #278798
 import React from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Text, View } from 'react-native';
-import { STUDENT } from '@constants/student';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { NavigationContainer } from '@react-navigation/native';
+import RootNavigator from '@navigation/RootNavigator';
+import Watermark from '@components/Watermark';
+import { VARIANT } from '@constants/student';
 import { COLORS } from '@constants/theme';
 
-const App = () => {
+const queryClient = new QueryClient();
+
+export default function App() {
   return (
     <SafeAreaProvider>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background }}>
-        <Text style={{ color: COLORS.primary, fontWeight: 'bold' }}>KTXGo - {STUDENT.mssv}</Text>
-      </View>
+      <QueryClientProvider client={queryClient}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
+          {VARIANT.watermarkAtTop && <Watermark />}
+
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+
+          {/* Vì số cuối MSSV là 1 -> Watermark sẽ hiển thị ở đây */}
+          {!VARIANT.watermarkAtTop && <Watermark />}
+        </SafeAreaView>
+      </QueryClientProvider>
     </SafeAreaProvider>
   );
-};
-
-export default App;
+}
