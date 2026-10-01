@@ -52,24 +52,32 @@ export function useCampusLocation() {
     }
   };
 
+  const calculateAndSetFee = (lat: number, lon: number) => {
+    const km = getDistanceFromLatLonInKm(lat, lon, CAMPUS_COORDS.lat, CAMPUS_COORDS.lon);
+    setDistance(km);
+
+    // Áp dụng đúng cấu hình tính phí của biến thể (Công thức B)
+    let fee = 0;
+    if ((VARIANT.shipFormula as string) === 'A') {
+      fee = BASE_SHIP_FEE + Math.round(km * 2000);
+    } else {
+      fee = BASE_SHIP_FEE + Math.round(km * 1500) + 2000;
+    }
+    setShipFee(fee);
+  };
+
   const getLocation = () => {
     Geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        const km = getDistanceFromLatLonInKm(latitude, longitude, CAMPUS_COORDS.lat, CAMPUS_COORDS.lon);
-        setDistance(km);
-
-        // Áp dụng đúng cấu hình tính phí của biến thể (Công thức B)
-        let fee = 0;
-        if ((VARIANT.shipFormula as string) === 'A') {
-          fee = BASE_SHIP_FEE + Math.round(km * 2000);
-        } else {
-          fee = BASE_SHIP_FEE + Math.round(km * 1500) + 2000;
-        }
-        setShipFee(fee);
+        calculateAndSetFee(latitude, longitude);
       },
-      (error) => console.log(error),
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      (error) => {
+        console.log('Location error/timeout, using fallback coords:', error);
+        // Mock tọa độ gần KTX theo quy định phòng thi
+        calculateAndSetFee(10.835000, 106.695000);
+      },
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 10000 }
     );
   };
 
