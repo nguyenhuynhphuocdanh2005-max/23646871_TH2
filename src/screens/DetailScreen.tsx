@@ -1,10 +1,99 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator, Vibration } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
+
+import { apiClient } from '@services/apiClient';
+import { Product } from '@services/productApi';
+import { useCartStore } from '@stores/cartStore';
+import { formatCurrency } from '@components/ProductCard';
+import { COLORS } from '@constants/theme';
+import { VARIANT } from '@constants/student';
 
 export default function DetailScreen() {
+  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const { id } = route.params; // Lấy ID từ Stack truyền sang
+
+  const addToCart = useCartStore((state) => state.add);
+
+  // Fetch chi tiết 1 sản phẩm
+  const { data: item, isLoading, isError } = useQuery<Product>({
+    queryKey: ['product', id],
+    queryFn: async () => {
+      const res = await apiClient.get(`/products/${id}`);
+      return res.data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </View>
+    );
+  }
+
+  if (isError || !item) {
+    return (
+      <View style={styles.center}>
+        <Text style={{ color: COLORS.error }}>Lỗi tải chi tiết món.</Text>
+      </View>
+    );
+  }
+
+  const handleAdd = () => {
+    if (VARIANT.hapticOnAdd === 'selection') Vibration.vibrate(50);
+    addToCart({
+      id: item.id.toString(),
+      title: item.title,
+      price: item.price,
+      quantity: 1,
+    });
+  };
+
   return (
-    <View>
-      <Text>Detail</Text>
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+        <Text style={styles.backText}>← Chi tiết món</Text>
+      </TouchableOpacity>
+
+      <View style={styles.imageCard}>
+        <Image source={{ uri: item.image }} style={styles.image} resizeMode="contain" />
+      </View>
+
+      <Text style={styles.title}>{item.title}</Text>
+      <Text style={styles.price}>{formatCurrency(item.price)}</Text>
+      <Text style={styles.subtitle}>Giao nội khu · nhận tận phòng</Text>
+
+      {/* Ràng buộc: Mô tả ngắn từ API (tối đa 3 dòng) */}
+      <Text style={styles.desc} numberOfLines={3}>
+        {item.description}
+      </Text>
+      <Text style={styles.idText}>Giữ nguyên id từ route.params: {id}</Text>
+
+      <View style={styles.spacer} />
+
+      <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
+        <Text style={styles.addButtonText}>Thêm vào giỏ · Haptic</Text>
+      </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: COLORS.background, padding: 16 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  backBtn: { marginBottom: 16, alignSelf: 'flex-start' },
+  backText: { fontSize: 16, color: COLORS.primary, fontWeight: 'bold' },
+  imageCard: { backgroundColor: '#FFF9C4', borderRadius: 16, padding: 24, marginBottom: 16, alignItems: 'center' },
+  image: { width: 200, height: 150 },
+  title: { fontSize: 22, fontWeight: 'bold', color: COLORS.text, textAlign: 'center', marginBottom: 8 },
+  price: { fontSize: 20, color: COLORS.primary, fontWeight: 'bold', textAlign: 'center', marginBottom: 8 },
+  subtitle: { fontSize: 14, color: COLORS.textLight, textAlign: 'center', marginBottom: 16 },
+  desc: { fontSize: 14, color: COLORS.textLight, textAlign: 'center', marginBottom: 8 },
+  idText: { fontSize: 12, color: COLORS.textLight, textAlign: 'center', fontStyle: 'italic' },
+  spacer: { flex: 1 },
+  addButton: { backgroundColor: COLORS.primary, padding: 16, borderRadius: 12, alignItems: 'center', marginBottom: 16 },
+  addButtonText: { color: COLORS.surface, fontSize: 16, fontWeight: 'bold' },
+});
