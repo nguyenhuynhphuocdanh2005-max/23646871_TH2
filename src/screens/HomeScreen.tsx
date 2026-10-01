@@ -97,6 +97,9 @@ export default function HomeScreen() {
 
       {/* Tuyệt đối không bọc FlashList bằng ScrollView dọc */}
       <View style={{ flex: 1 }}>
+        <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 2, alignItems: 'flex-end' }}>
+          <Text style={{ fontSize: 13, fontWeight: 'bold', color: COLORS.primary }}>(C) FlashList ×2</Text>
+        </View>
         <TypedFlashList
           data={filteredData}
           numColumns={2}

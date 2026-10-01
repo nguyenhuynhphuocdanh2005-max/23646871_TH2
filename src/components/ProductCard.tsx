@@ -18,8 +18,9 @@ export const formatCurrency = (price: number) => {
 const MOCK_BGS = ['#FEF3C7', '#E0F2FE', '#DCFCE7', '#FCE7F3'];
 
 const ProductCard = ({ item, onPress, onAdd }: Props) => {
-  // Trích xuất màu nền luân phiên dựa vào ID sản phẩm
-  const bgColor = MOCK_BGS[item.id % 4];
+  // Trích xuất màu nền luân phiên dựa vào ID sản phẩm (khớp chính xác 4 màu theo mockup: Vàng, Xanh dương, Xanh lá, Hồng)
+  const colorIndex = Math.abs((Number(item.id) - 1) % 4);
+  const bgColor = MOCK_BGS[colorIndex] || MOCK_BGS[0];
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>

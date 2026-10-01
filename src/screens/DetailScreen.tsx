@@ -1,14 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator, Vibration } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Vibration } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 
-import { apiClient } from '@services/apiClient';
-import { Product } from '@services/productApi';
+import { Product, fetchProductById } from '@services/productApi';
 import { useCartStore } from '@stores/cartStore';
 import { formatCurrency } from '@components/ProductCard';
 import { COLORS } from '@constants/theme';
 import { VARIANT } from '@constants/student';
+
+const MOCK_BGS = ['#FEF3C7', '#E0F2FE', '#DCFCE7', '#FCE7F3'];
 
 export default function DetailScreen() {
   const route = useRoute<any>();
@@ -20,10 +21,7 @@ export default function DetailScreen() {
   // Fetch chi tiết 1 sản phẩm
   const { data: item, isLoading, isError } = useQuery<Product>({
     queryKey: ['product', id],
-    queryFn: async () => {
-      const res = await apiClient.get(`/products/${id}`);
-      return res.data;
-    },
+    queryFn: () => fetchProductById(id),
   });
 
   if (isLoading) {
@@ -52,14 +50,19 @@ export default function DetailScreen() {
     });
   };
 
+  const colorIndex = Math.abs((Number(item.id) - 1) % 4);
+  const bgColor = MOCK_BGS[colorIndex] || MOCK_BGS[0];
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
         <Text style={styles.backText}>← Chi tiết món</Text>
       </TouchableOpacity>
 
-      <View style={styles.imageCard}>
-        <Image source={{ uri: item.image }} style={styles.image} resizeMode="contain" />
+      <View style={[styles.imageCard, { backgroundColor: bgColor }]}>
+        <View style={styles.oval}>
+          <View style={styles.rectangle} />
+        </View>
       </View>
 
       <Text style={styles.title}>{item.title}</Text>
@@ -86,12 +89,13 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   backBtn: { marginBottom: 16, alignSelf: 'flex-start' },
   backText: { fontSize: 16, color: COLORS.primary, fontWeight: 'bold' },
-  imageCard: { backgroundColor: '#FFF9C4', borderRadius: 16, padding: 24, marginBottom: 16, alignItems: 'center' },
-  image: { width: 200, height: 150 },
+  imageCard: { height: 160, borderRadius: 16, padding: 24, marginBottom: 16, alignItems: 'center', justifyContent: 'center' },
+  oval: { width: 160, height: 60, backgroundColor: '#93C5FD', borderRadius: 60, justifyContent: 'center', alignItems: 'center' },
+  rectangle: { width: 110, height: 22, backgroundColor: COLORS.primary },
   title: { fontSize: 22, fontWeight: 'bold', color: COLORS.text, textAlign: 'center', marginBottom: 8 },
   price: { fontSize: 20, color: COLORS.primary, fontWeight: 'bold', textAlign: 'center', marginBottom: 8 },
   subtitle: { fontSize: 14, color: COLORS.textLight, textAlign: 'center', marginBottom: 16 },
-  desc: { fontSize: 14, color: COLORS.textLight, textAlign: 'center', marginBottom: 8 },
+  desc: { fontSize: 14, color: COLORS.textLight, textAlign: 'center', marginBottom: 8, paddingHorizontal: 12 },
   idText: { fontSize: 12, color: COLORS.textLight, textAlign: 'center', fontStyle: 'italic' },
   spacer: { flex: 1 },
   addButton: { backgroundColor: COLORS.primary, padding: 16, borderRadius: 12, alignItems: 'center', marginBottom: 16 },

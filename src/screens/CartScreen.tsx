@@ -3,10 +3,13 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native
 import { useCartStore } from '@stores/cartStore';
 import { formatCurrency } from '@components/ProductCard';
 import { COLORS } from '@constants/theme';
-import { ROOM_LABEL } from '@constants/student';
+import { ROOM_LABEL, PRICE_MULTIPLIER } from '@constants/student';
 
 export default function CartScreen() {
   const { items, remove, changeQty, totalAmount, shipFee } = useCartStore();
+
+  const totalItemVnd = Math.round(totalAmount() * (PRICE_MULTIPLIER || 1));
+  const formatVndNumber = (val: number) => Math.round(val).toLocaleString('vi-VN') + ' đ';
 
   return (
     <View style={styles.container}>
@@ -49,11 +52,11 @@ export default function CartScreen() {
         <Text style={styles.roomText}>Giao đến {ROOM_LABEL}</Text>
 
         <Text style={styles.shipText}>
-          {shipFee > 0 ? `Phí ship: ${formatCurrency(shipFee)} (công thức B)` : 'Phí ship: (Đang chờ tính...)'}
+          {shipFee > 0 ? `Phí ship: ${formatVndNumber(shipFee)} (công thức B)` : 'Phí ship: (Đang chờ tính...)'}
         </Text>
 
         <View style={styles.divider} />
-        <Text style={styles.totalText}>Tổng hàng: {formatCurrency(totalAmount() + shipFee)}</Text>
+        <Text style={styles.totalText}>Tổng cộng: {formatVndNumber(totalItemVnd + shipFee)}</Text>
       </View>
     </View>
   );
